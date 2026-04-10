@@ -36,7 +36,7 @@ import SearchIcon from "@/components/navbar/icons/SearchIcon.vue";
       </div>
       <!--右边-->
       <div class="navbar-end">
-        <button class="btn btn-ghost text-lg">登录</button>
+        <RouterLink :to="{name:'user-account-login-index'}" active-class="btn-active" class="btn btn-ghost text-lg">登录</RouterLink>
       </div>
     </nav>
     <slot></slot>
@@ -47,23 +47,25 @@ import SearchIcon from "@/components/navbar/icons/SearchIcon.vue";
     <div class="flex min-h-full flex-col items-start bg-base-200 is-drawer-close:w-16 is-drawer-open:w-54">
       <ul class="menu w-full grow">
         <li>
-          <button class="is-drawer-close:tooltip is-drawer-close:tooltip-right py-3" data-tip="首页">
+          <!--menu-focus高亮
+          active-class="menu-focus"：当 <RouterLink> 的 URL 与当前路由匹配时，自动给这个链接添加指定的类名（这里是 menu-focus添加到class中），用于高亮显示当前所在的菜单项。-->
+          <RouterLink :to="{name:'homepage-index'}" active-class="menu-focus" class="is-drawer-close:tooltip is-drawer-close:tooltip-right py-3" data-tip="首页">
             <HomepageIcon></HomepageIcon>
             <!--whitespace-nowra不换行-->
             <span class="is-drawer-close:hidden text-base ml-2 whitespace-nowrap">首页</span>
-          </button>
+          </RouterLink>
         </li>
         <li>
-          <button class="is-drawer-close:tooltip is-drawer-close:tooltip-right py-3" data-tip="好友">
+          <RouterLink :to="{name:'friend-index'}" active-class="menu-focus" class="is-drawer-close:tooltip is-drawer-close:tooltip-right py-3" data-tip="好友">
             <FriendIcon></FriendIcon>
             <span class="is-drawer-close:hidden text-base ml-2 whitespace-nowrap">好友</span>
-          </button>
+          </RouterLink>
         </li>
         <li>
-          <button class="is-drawer-close:tooltip is-drawer-close:tooltip-right py-3" data-tip="创作">
+          <RouterLink :to="{name:'create-index'}" active-class="menu-focus" class="is-drawer-close:tooltip is-drawer-close:tooltip-right py-3" data-tip="创作">
             <CreateIcon></CreateIcon>
             <span class="is-drawer-close:hidden text-base ml-2 whitespace-nowrap">创作</span>
-          </button>
+          </RouterLink>
         </li>
       </ul>
     </div>
