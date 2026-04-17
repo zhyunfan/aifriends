@@ -24,6 +24,7 @@ def photo_upload_to(instance, filename):
 # 在dango里面定义了一个数据库，数据库里面的一个数据就对应这个类的一个对象，类对应数据库里面的一个表
 # 每个对象对应的信息有：user,photo,profile,create_time,update_time
 class UserProfile(models.Model):
+    # User是Django内置的用户认证模型
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     # default='user/photos/default.png'表示的路径默认相对在media文件夹下
     # upload_to表示上传路径
