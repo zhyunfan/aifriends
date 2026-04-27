@@ -6,6 +6,7 @@ import FriendIcon from "@/components/navbar/icons/FriendIcon.vue";
 import CreateIcon from "@/components/navbar/icons/CreateIcon.vue";
 import SearchIcon from "@/components/navbar/icons/SearchIcon.vue";
 import {useUserStore} from '@/stores/user'
+import UserMenu from "@/components/navbar/UserMenu.vue";
 
 const user=useUserStore()
 </script>
@@ -39,8 +40,14 @@ const user=useUserStore()
       </div>
       <!--右边-->
       <div class="navbar-end">
+        <RouterLink v-if="user.isLogin()" :to="{name:'create-index'}" class="btn btn-ghost text-base mr-6">
+          <CreateIcon></CreateIcon>创作
+        </RouterLink>
         <RouterLink v-if="!user.isLogin()" :to="{name:'user-account-login-index'}" active-class="btn-active" class="btn btn-ghost text-lg">
           登录</RouterLink>
+        <!--v-else表示如果前面成立显示登录，不成立显示UserMenu
+        即 否则就渲染这个，v-else 必须紧跟在 v-if/v-else-if 后面-->
+        <UserMenu v-else></UserMenu>
       </div>
     </nav>
     <slot></slot>
