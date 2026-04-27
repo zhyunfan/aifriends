@@ -1,4 +1,4 @@
-<script setup lang="ts">
+<script setup lang="js">
 // js
 import NavBar from "@/components/navbar/NavBar.vue";
 </script>
