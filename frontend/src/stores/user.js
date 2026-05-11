@@ -4,10 +4,11 @@ import {ref} from "vue";
 // defineStore 返回的是一个函数
 export const useUserStore=defineStore('user',()=>{
     const id=ref(0)
-    const username=ref()
-    const photo=ref()
-    const profile=ref()
-    const accessToken=ref()
+    const username=ref('')
+    const photo=ref('')
+    const profile=ref('')
+    const accessToken=ref('')
+    const hasPulledUserInfo=ref(false)
     function isLogin(){
         return !!accessToken.value//必须带value否则accessToken永远不空，!!取非再取非
     }
@@ -28,6 +29,9 @@ export const useUserStore=defineStore('user',()=>{
         profile.value=''
         accessToken.value=''
     }
+    function setHasPulledUserInfo(newStatus){
+        hasPulledUserInfo.value=newStatus
+    }
     return {
         id,
         username,
@@ -37,6 +41,8 @@ export const useUserStore=defineStore('user',()=>{
         isLogin,
         setAccessToken,
         setUserInfo,
-        logout
+        logout,
+        hasPulledUserInfo,
+        setHasPulledUserInfo,
     }
 })

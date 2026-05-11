@@ -43,11 +43,12 @@ const user=useUserStore()
         <RouterLink v-if="user.isLogin()" :to="{name:'create-index'}" class="btn btn-ghost text-base mr-6">
           <CreateIcon></CreateIcon>创作
         </RouterLink>
-        <RouterLink v-if="!user.isLogin()" :to="{name:'user-account-login-index'}" active-class="btn-active" class="btn btn-ghost text-lg">
+<!--        user.hasPulledUserInfo防止登录后刷新闪过登录字样-->
+        <RouterLink v-if="user.hasPulledUserInfo&&!user.isLogin()" :to="{name:'user-account-login-index'}" active-class="btn-active" class="btn btn-ghost text-lg">
           登录</RouterLink>
         <!--v-else表示如果前面成立显示登录，不成立显示UserMenu
         即 否则就渲染这个，v-else 必须紧跟在 v-if/v-else-if 后面-->
-        <UserMenu v-else></UserMenu>
+        <UserMenu v-else-if="user.isLogin()"></UserMenu>
       </div>
     </nav>
     <slot></slot>
