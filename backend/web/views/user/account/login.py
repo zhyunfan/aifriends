@@ -17,6 +17,7 @@ class LoginView(APIView):
                 })
             user=authenticate(username=username,password=password)
             if user:#用户名密码正确
+                # 返回一个匹配，如果返回0/多个匹配报错
                 user_profile = UserProfile.objects.get(user=user)
                 refresh=RefreshToken.for_user(user)#生成jwt
                 response=Response({

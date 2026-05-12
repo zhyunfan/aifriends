@@ -6,6 +6,7 @@ from web.views.user.account.login import LoginView
 from web.views.user.account.logout import LogoutView
 from web.views.user.account.refresh_token import RefreshTokenView
 from web.views.user.account.register import RegisterView
+from web.views.user.profile.update import UpdateProfileView
 
 urlpatterns = [
     # 后端路由前面不加/，前端加/
@@ -15,6 +16,7 @@ urlpatterns = [
     path('api/user/account/register/',RegisterView.as_view()),
     path('api/user/account/refresh_token/',RefreshTokenView.as_view()),
     path('api/user/account/get_user_info/',GetUserInfoView.as_view()),
+    path('api/user/profile/update/',UpdateProfileView.as_view()),
     path('',index),
     #ctrl+点击index跳转到index.py对应index.html即前端页面，再根据前端设置的路径跳到对应页面（前端页面的RouterView->router/index.js）就不会出现比如用户登录后点击创作
     # 即http://127.0.0.1:8000/create/不会出现页面找不到
