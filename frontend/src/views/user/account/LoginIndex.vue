@@ -54,7 +54,7 @@ async function handleLogin(){
       <label class="label">密码</label>
       <input v-model="password" type="password" class="input" placeholder="密码" />
       <p v-if="errorMessage" class="text-sm text-red-500 mt-1" >{{errorMessage}}</p>
-      <button @click="handleLogin" class="btn btn-neutral mt-4">登录</button>
+      <button class="btn btn-neutral mt-4">登录</button>
       <div class="flex justify-end">
         <RouterLink :to="{name:'user-account-register-index'}" class="btn btn-sm btn-ghost text-gray-500">
           注册
