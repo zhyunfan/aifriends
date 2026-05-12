@@ -16,7 +16,7 @@ const router = createRouter({
       path:'/',
       component:HomepageIndex,
       name:'homepage-index',
-      meta:{
+      meta:{//自定义信息
         needLogin:false,
       },
     },
@@ -91,7 +91,7 @@ const router = createRouter({
 router.beforeEach((to,from)=>{
   const user=useUserStore()
   // 第一次打开页面时一定是未登录状态，因为从云端获取数据是异步，异步速度小于同步速度，看/stores/user.js中的用户信息还是空
-  //所以从云端加载完信息再去判断
+  //所以从云端加载完信息再去判断user.hasPulledUserInfo
   if(to.meta.needLogin&& user.hasPulledUserInfo &&!user.isLogin()){
     return{
       name:'user-account-login-index'

@@ -25,6 +25,10 @@ def photo_upload_to(instance, filename):
 # 每个对象对应的信息有：user,photo,profile,create_time,update_time
 class UserProfile(models.Model):
     # User是Django内置的用户认证模型
+    # User本身是一个完整的模型，它在数据库中对应auth_user表，这个表自带了Django预定义的所有字段：
+    # auth_user:id,password,last_login,is_superuser,username,last_name,email,is_staff,is_active,date_joined,first_name
+    # 定义的user字段只是建立了一个"外键关联"，而不是把User的所有字段都复制到UserProfile表中
+    # user字段在该代码对应数据库web_userprofile中实际变成了user_id列，存储的是关联用户的ID
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     # default='user/photos/default.png'表示的路径默认相对在media文件夹下
     # upload_to表示上传路径

@@ -1,4 +1,4 @@
-from django.urls import path
+from django.urls import path, re_path
 
 from web.views.index import index
 from web.views.user.account.get_user_info import GetUserInfoView
@@ -15,5 +15,8 @@ urlpatterns = [
     path('api/user/account/register/',RegisterView.as_view()),
     path('api/user/account/refresh_token/',RefreshTokenView.as_view()),
     path('api/user/account/get_user_info/',GetUserInfoView.as_view()),
-    path('',index)
+    path('',index),
+    #ctrl+点击index跳转到index.py对应index.html即前端页面，再根据前端设置的路径跳到对应页面（前端页面的RouterView->router/index.js）就不会出现比如用户登录后点击创作
+    # 即http://127.0.0.1:8000/create/不会出现页面找不到
+    re_path(r'^(?!media/|static/|assets/).*$', index)#匹配所有不以静态文件开头的路由
 ]

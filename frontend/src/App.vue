@@ -22,6 +22,7 @@ onMounted(async()=>{
   }finally {
     user.setHasPulledUserInfo(true)
     //判断是否需要登录
+    //user.isLogin()没有登录就是没有access_token
     if(route.meta.needLogin&&!user.isLogin()){
       //用replace:网页不能后退“⬅”，用push可以后退
       await router.replace({
