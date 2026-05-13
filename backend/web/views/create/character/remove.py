@@ -3,6 +3,7 @@ from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
 
 from web.models.character import Character
+from web.views.utils.photo import remove_old_photo
 
 
 class RemoveCharacterView(APIView):
@@ -10,7 +11,13 @@ class RemoveCharacterView(APIView):
     def post(self,request):
         try:
             character_id=request.data['character_id']
-            Character.objects.filter(pk=character_id,author__user=request.user).delete()
+            # filter返回一个数组，get返回一个元素
+            # Character.objects.filter(pk=character_id,author__user=request.user).delete()
+            # 先删除角色的头像和背景，再删除角色
+            character=Character.objects.get(pk=character_id,author__user=request.user)
+            remove_old_photo(character.photo)
+            remove_old_photo(character.background_image)
+            character.delete()
             return Response({'result':'success'})
         except:
             return Response({
