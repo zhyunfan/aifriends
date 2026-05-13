@@ -2,6 +2,7 @@ import {defineStore} from "pinia";
 import {ref} from "vue";
 
 // defineStore 返回的是一个函数
+// 由 defineStore 定义的函数（如 useUserStore），在调用时返回的就是单例对象
 export const useUserStore=defineStore('user',()=>{
     const id=ref(0)
     const username=ref('')

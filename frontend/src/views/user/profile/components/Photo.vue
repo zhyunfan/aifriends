@@ -4,10 +4,16 @@ import CameraIcon from "@/views/user/profile/components/icon/CameraIcon.vue";
 import Croppie from 'croppie'
 import 'croppie/croppie.css'
 
-// 表示<Photo :photo="user.photo"></Photo>
+// 在 Vue 中，任何自定义标签（非原生 HTML 标签）都是子组件
+// 表示ProfileIndex.vue中的<Photo :photo="user.photo"></Photo>
+// props.photo 的值就是 user.photo 的值即user数据库中的photo，接下来会将其赋值给myPhoto,然后在页面上显示出来
+//如果更改头像那么通过模态框裁剪下来点击确定更新数据库，和frontend/src/views/create/character/components/Photo.vue相比，
+// 那个文件里面因为父组件CreateCharacter.vue没有设置:photo,所以刚开始为灰色图片（代码设置的）,之后选择图片点击确定就添加到数据库了
+// defineProps定义子组件可以接收什么参数
 const props=defineProps(['photo'])
 // 需要用到响应式，因为裁剪图片那么myPhoto会变
 const myPhoto=ref(props.photo)
+// 同步传过来的组件和内部的组件
 watch(()=>props.photo,newVal=>{
   myPhoto.value=newVal
 })
@@ -27,11 +33,11 @@ async function openModal(photo){
 
   if(!croppie){
     croppie = new Croppie(croppieRef.value, {  // 创建croppie对象
-    viewport: {width: 200, height: 200, type: 'square'},
-    boundary: {width: 300, height: 300},
-    enableOrientation: true,
-    enforceBoundary: true,
-  })
+      viewport: {width: 200, height: 200, type: 'square'},
+      boundary: {width: 300, height: 300},
+      enableOrientation: true,
+      enforceBoundary: true,
+    })
   }
   // 将一张图片“绑定”到裁剪器上，也就是让裁剪器加载并显示你指定的图片，然后你就可以对这张图片进行裁剪操作了
   croppie.bind({
@@ -48,6 +54,7 @@ async function crop(){
 }
 function onFileChange(e){
   const file=e.target.files[0]
+  // 要不然第一次选择某图片，下次如果再次选择该图片那么就不会弹出模态框裁剪图片了
   e.target.value=''
   if(!file)return
   const reader=new FileReader()
@@ -83,12 +90,12 @@ defineExpose({
   </div>
   <input ref="file-input-ref" type="file" accept="image/*" class="hidden" @change="onFileChange">
   <dialog ref="modal-ref" class="modal">
-<!--    加了transition-none那么如果放大图片截取右下角就会对齐了-->
+    <!--加了transition-none那么如果放大图片截取右下角就会对齐了-->
     <div class="modal-box transition-none">
       <!--这里不需要在父组件加relative是因为modal中已经定义了absolute的父组件必须加的样式了
       modalRef.close()不需要.value再close了-->
       <button @click="modalRef.close()" class="btn btn-circle btn-sm btn-ghost absolute right-2 top-2">✕</button>
-<!--      裁剪功能需要绑定在一个组件中-->
+      <!--裁剪功能需要绑定在一个组件中-->
       <div ref="croppie-ref" class="flex flex-col justify-center my-4"></div>
       <div class="modal-action">
         <button @click="modalRef.close()" class="btn">取消</button>

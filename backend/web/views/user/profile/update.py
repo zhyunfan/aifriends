@@ -37,12 +37,14 @@ class UpdateProfileView(APIView):
             user_profile.save()
             user.username=username
             user.save()
+            # 前端有，但是后端又返回一次主要是因为后端返回了处理后的图片的url(名称改了)方便前端处理
+            # 而且做一些额外操作比如删除原图片...
             return Response({
                 'result':'success',
                 'user_id':user.id,
                 'username':user.username,
                 'profile':user_profile.profile,
-                'photo':user_profile.photo.url,#前端有，但是后端又返回一次主要是因为后端返回了处理后的图片的url(名称改了)方便前端处理
+                'photo':user_profile.photo.url,
             })
         except:
             return Response({

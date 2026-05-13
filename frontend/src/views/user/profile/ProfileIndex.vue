@@ -37,6 +37,7 @@ async function handleUpdate(){
       const res=await api.post('api/user/profile/update/',formData)
       const data=res.data
       if(data.result==='success'){
+        // 修改user表,因为user和userprofile关联
         user.setUserInfo(data)
       }else{
         errorMessage.value=data.result
@@ -54,7 +55,9 @@ async function handleUpdate(){
       <div class="card-body ">
         <h3 class="text-lg font-bold my-4">编辑资料</h3>
         <!--没有冒号：子组件收到的值：字符串 "user.photo"（原封不动的文本）
-            有冒号：子组件收到的值：变量 user.photo 里面存的实际内容（比如一个图片网址 "https://example.com/avatar.jpg"）-->
+            有冒号：子组件收到的值：变量 user.photo 里面存的实际内容（比如一个图片网址 "https://example.com/avatar.jpg"）
+            因为 Photo 不是浏览器自带的标签，所以它一定是一个组件，在父组件中被使用，因此<Photo ref="photo-ref" :photo="user.photo"></Photo>就是子组件
+            :photo="user.photo" 传递 prop，把 user.photo 的值传给子组件即Photo.vue的 photo 属性-->
         <Photo ref="photo-ref" :photo="user.photo"></Photo>
         <Username ref="username-ref" :username="user.username"></Username>
         <Profile ref="profile-ref" :profile="user.profile"></Profile>
