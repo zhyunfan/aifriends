@@ -40,10 +40,11 @@ const user=useUserStore()
       </div>
       <!--右边-->
       <div class="navbar-end">
-        <RouterLink v-if="user.isLogin()" :to="{name:'create-index'}" class="btn btn-ghost text-base mr-6">
+        <!--<RouterLink v-if="user.isLogin()" :to="{name:'create-index'}" class="btn btn-ghost text-base mr-6">-->
+        <RouterLink v-if="user.isLogin()" :to="{name:'update-character',params:{character_id:1}}" class="btn btn-ghost text-base mr-6">
           <CreateIcon></CreateIcon>创作
         </RouterLink>
-<!--        user.hasPulledUserInfo防止登录后刷新闪过登录字样-->
+        <!--user.hasPulledUserInfo防止登录后刷新闪过登录字样-->
         <RouterLink v-if="user.hasPulledUserInfo&&!user.isLogin()" :to="{name:'user-account-login-index'}" active-class="btn-active" class="btn btn-ghost text-lg">
           登录</RouterLink>
         <!--v-else表示如果前面成立显示登录，不成立显示UserMenu
