@@ -16,7 +16,7 @@ const user=useUserStore()
 function closeMenu() {
   const element = document.activeElement
   if (element && element instanceof HTMLElement) element.blur()
- }
+}
 const router=useRouter()
 async function handleLogout(){
   try{
@@ -37,7 +37,7 @@ async function handleLogout(){
   <div class="dropdown dropdown-end">
     <div tabindex="0" role="button" class="avatar btn btn-circle w-8 h-8 mr-6">
       <div class="w-8 rounded-full">
-        <img :src="user.photo">
+        <img :src="user.photo" alt="">
       </div>
     </div>
     <ul tabindex="-1" class="dropdown-content menu bg-base-100 rounded-box z-1 w-48 p-2 shadow-lg">
