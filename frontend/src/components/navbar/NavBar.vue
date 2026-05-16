@@ -26,8 +26,8 @@ const user=useUserStore()
         <div class="px-2 font-bold text-2xl">AIFriends</div>
       </div>
       <!--中间-->
-      <!--flex设置display: flex将元素变为弹性容器 justify-center主轴方向居中排列子元素
-      items-center:垂直居中-->
+      <!--主轴方向 决定排列方向flex设置display: flex将元素变为弹性容器 justify-center主轴方向居中排列子元素
+      items-center:交叉方向即垂直居中-->
       <div class="navbar-center w-4/5 max-w-180 flex justify-center">
         <!--搜索框-->
         <div class="join w-4/5 flex justify-center">

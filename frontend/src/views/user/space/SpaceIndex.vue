@@ -13,6 +13,7 @@ import UserInfoField from "@/views/user/space/components/UserInfoField.vue";
 import {nextTick, onBeforeUnmount, onMounted, ref, useTemplateRef} from "vue";
 import api from "@/js/http/api";
 import {useRoute} from "vue-router";
+import Character from "@/components/character/Character.vue";
 
 const userProfile=ref(null)
 const characters=ref([])
@@ -29,7 +30,6 @@ function checkSentinelVisible() {  // 判断哨兵是否能被看到
   return rect.top < window.innerHeight && rect.bottom > 0
 }
 async function loadMore(){
-  console.log('11111111111111111111111111111111111')
   // 如果正在加载中或者没有角色了
   if(isLoading.value||!hasCharacters.value)return
   isLoading.value=true
@@ -44,10 +44,7 @@ async function loadMore(){
     })
     const data=res.data
     if(data.result==='success'){
-      console.log('xxxxxxxxxxxxxxxxxxxxxxxxxxxxx')
       userProfile.value=data.user_profile
-      console.log(userProfile.value.username)
-      console.log(userProfile.value.photo)
       newCharacters=data.characters
     }
   }catch(err){
@@ -89,6 +86,10 @@ onMounted(async ()=>{
   )
   observer.observe(sentinelRef.value)
 })
+function removeCharacter(characterId){
+  // 实时渲染的，所以相当于删除了
+  characters.value=characters.value.filter(c=>c.id!=characterId)
+}
 // 释放资源
 onBeforeUnmount(()=>{
   observer?.disconnect()
@@ -101,12 +102,20 @@ onBeforeUnmount(()=>{
 
   <!--mb:margin-bottom上半部分用户信息区域，下半部分角色列表-->
   <div class="flex flex-col items-center mb-12">
+    <!--刚开始userProfile是空的
+    loadMore 函数虽然会在 onMounted 中执行，但 Vue 会先完成模板渲染，然后才执行 onMounted 里的异步请求。所以第一轮渲染时 userProfile 还是 null-->
     <UserInfoField v-if="userProfile" :userProfile="userProfile"></UserInfoField>
     <div class="grid grid-cols-[repeat(auto-fill,minmax(240px,1fr))] gap-9 mt-12 justify-items-center w-full px-9">
-
+      <Character
+        v-for="character in characters"
+        :key="character.id"
+        :character="character"
+        :canEdit="true"
+        @remove="removeCharacter"
+        ></Character><!--@remove="removeCharacter"子组件中可以调用父组件的方法-->
     </div>
     <!--哨兵 在加载卡片时会加到哨兵前面，如果页面看不到哨兵就停止加载卡片，向下滚动页面时如果看到哨兵就继续加载-->
-    <div ref="sentinel-ref" class="h-2 mt-800 w-100 bg-red-500"></div>
+    <div ref="sentinel-ref" class="h-2 mt-8 w-100"></div>
     <div v-if="isLoading" class="text-gray-500 mt-4">加载中...</div>
     <div v-else-if="!hasCharacters" class="text-gray-500 mt-4">没有更多角色了</div>
   </div>
