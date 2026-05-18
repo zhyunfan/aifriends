@@ -1,12 +1,14 @@
 <script setup lang="js">
-import {nextTick, onBeforeUnmount, onMounted, ref, useTemplateRef} from "vue";
+import {nextTick, onBeforeUnmount, onMounted, ref, useTemplateRef, watch} from "vue";
 import api from "@/js/http/api.js";
 import Character from "@/components/character/Character.vue";
+import {useRoute} from "vue-router";
 
 const isLoading=ref(false)
 const characters=ref([])
 const hasCharacters=ref(true)
 const sentinelRef=useTemplateRef('sentinel-ref')
+const route=useRoute()
 function checkSentinelVisible() {  // 判断哨兵是否能被看到
   if (!sentinelRef.value) return false
 
@@ -21,6 +23,7 @@ async function loadMore(){
     const res=await api.get('api/homepage/index',{
       params:{
         items_count:characters.value.length,
+        search_query:route.query.q||'',
       }
     })
     const data=res.data
@@ -56,6 +59,17 @@ onMounted(async ()=>{
       {root:null,rootMargin:'2px',threshold:0}
   )
   observer.observe(sentinelRef.value)
+})
+function reset(){
+  characters.value=[]
+  isLoading.value=false
+  hasCharacters.value=true
+  loadMore()
+}
+watch(()=>route.query.q,newQ=>{
+  //当q变化时重置整个页面内容
+  reset()
+  // console.log('watch-2')
 })
 onBeforeUnmount(()=>{
   observer?.disconnect()

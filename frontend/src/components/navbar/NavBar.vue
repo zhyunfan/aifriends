@@ -7,8 +7,30 @@ import CreateIcon from "@/components/navbar/icons/CreateIcon.vue";
 import SearchIcon from "@/components/navbar/icons/SearchIcon.vue";
 import {useUserStore} from '@/stores/user'
 import UserMenu from "@/components/navbar/UserMenu.vue";
+import {ref, watch} from "vue";
+import {useRoute, useRouter} from "vue-router";
 
 const user=useUserStore()
+const searchQuery=ref('')
+const router=useRouter()
+const route=useRoute()
+// 刷新页面之后能把网站url中q的值发生变化就把值赋给搜索输入框
+//其实是route.query.q发生变化,route.query获取当前页面 URL 中 ? 后面的所有查询参数
+watch(()=>route.query.q,newQ=>{
+  // 保证searchQuery是个字符串，防止newQ为null或undefined
+  searchQuery.value= newQ || ''
+  // console.log('watch-1')
+})
+function handleSearch(){
+  router.push({
+    name:'homepage-index',
+    // 把搜索内容放到url的query参数里面，query：表示 URL 中 ? 后面的查询参数
+    //q：参数名，最终会显示为 ?q=xxx
+    query:{
+      q:searchQuery.value.trim(),
+    }
+  })
+}
 </script>
 
 <template>
@@ -29,14 +51,14 @@ const user=useUserStore()
       <!--主轴方向 决定排列方向flex设置display: flex将元素变为弹性容器 justify-center主轴方向居中排列子元素
       items-center:交叉方向即垂直居中-->
       <div class="navbar-center w-4/5 max-w-180 flex justify-center">
-        <!--搜索框-->
-        <div class="join w-4/5 flex justify-center">
-          <input class="input join-item rounded-l-full w-4/5" placeholder="搜索你感兴趣的内容" />
+        <!--搜索框 一回车就刷新-->
+        <form @submit.prevent="handleSearch" class="join w-4/5 flex justify-center">
+          <input v-model="searchQuery" class="input join-item rounded-l-full w-4/5" placeholder="搜索你感兴趣的内容" />
           <button class="btn join-item rounded-r-full gap-0">
             <SearchIcon></SearchIcon>
             搜索
           </button>
-        </div>
+        </form>
       </div>
       <!--右边-->
       <div class="navbar-end">

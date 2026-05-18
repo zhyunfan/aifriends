@@ -5,6 +5,7 @@ import {useUserStore} from "@/stores/user.js";
 import RemoveIcon from "@/components/character/icons/RemoveIcon.vue";
 import api from "@/js/http/api.js";
 
+// 下面直接用character，canEdit变量了
 const props=defineProps(['character','canEdit'])
 const emit=defineEmits(['remove'])
 const isHover=ref(false)
