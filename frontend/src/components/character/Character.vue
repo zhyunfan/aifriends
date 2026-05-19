@@ -1,15 +1,18 @@
 <script setup lang="js">
-import {ref} from "vue";
+import {ref, useTemplateRef} from "vue";
 import UpdateIcon from "@/components/character/icons/UpdateIcon.vue";
 import {useUserStore} from "@/stores/user.js";
 import RemoveIcon from "@/components/character/icons/RemoveIcon.vue";
 import api from "@/js/http/api.js";
+import ChatField from "@/components/character/chat_field/ChatField.vue";
+import {useRouter} from "vue-router";
 
-// 下面直接用character，canEdit变量了
+// 下面的html语句直接用character，canEdit变量了，js不能直接使用需要props.
 const props=defineProps(['character','canEdit'])
 const emit=defineEmits(['remove'])
 const isHover=ref(false)
 const user=useUserStore()
+const router=useRouter()
 async function handleRemoveCharacter(){
   try{
     const res=await api.post('api/create/character/remove/',{
@@ -26,11 +29,34 @@ async function handleRemoveCharacter(){
     console.log(err)
   }
 }
+const chatFieldRef=useTemplateRef('chat-field-ref')
+const friend=ref(null)
+async function openChatField(){
+  // console.log('open')
+  if(!user.isLogin()){
+    await router.push({
+      name: 'user-account-login-index'
+    })
+  }else{
+    try{
+      const res=await api.post('api/friend/get_or_create/',{
+        character_id:props.character.id,
+      })
+      const data=res.data
+      if(data.result==='success'){
+        friend.value=data.friend
+        chatFieldRef.value.showModal()
+      }
+    }catch (err){
+      console.log(err)
+    }
+  }
+}
 </script>
 
 <template>
   <div>
-    <div class="avatar cursor-pointer" @mouseover="isHover=true" @mouseout="isHover=false">
+    <div class="avatar cursor-pointer" @mouseover="isHover=true" @mouseout="isHover=false" @click="openChatField">
       <div class="w-60 h-100 rounded-2xl relative">
         <!-- 在 <template> 中访问 props，不需要加 props.在 <script> 中访问 props 的值，必须加 props. -->
         <img :src="character.background_image" class="transition-transform duration-300" :class="{'scale-120':isHover}" alt="">
@@ -65,6 +91,7 @@ async function handleRemoveCharacter(){
       </div>
       <div class="text-sm line-clamp-1 break-all">{{character.author.username}}</div>
     </RouterLink>
+    <ChatField ref="chat-field-ref" :friend="friend"></ChatField>
   </div>
 </template>
 
