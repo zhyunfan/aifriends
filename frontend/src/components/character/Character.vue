@@ -78,10 +78,10 @@ async function openChatField(){
         <div class="absolute left-0 top-50 w-60 h-50 bg-linear-to-t from-white/40 to-transparent"></div>
         <!--如果父组件没有传canEdit变量，那么默认为false其它的也一样，那么就可以实现不同父组件调用该组件而实现不同展示的结果-->
         <div v-if="canEdit&&character.author.user_id===user.id" class="absolute right-0 top-50">
-          <RouterLink :to="{name:'update-character',params:{character_id:character.id}}" class="btn btn-circle btn-ghost bg-transparent">
+          <RouterLink @click.stop :to="{name:'update-character',params:{character_id:character.id}}" class="btn btn-circle btn-ghost bg-transparent">
             <UpdateIcon></UpdateIcon>
           </RouterLink>
-          <button @click="handleRemoveCharacter" class="btn btn-circle btn-ghost bg-transparent">
+          <button @click.stop="handleRemoveCharacter" class="btn btn-circle btn-ghost bg-transparent">
             <RemoveIcon></RemoveIcon>
           </button>
         </div>

@@ -10,7 +10,7 @@ const router=useRouter()
 //   name:'homepage-index'
 // })*/
 import UserInfoField from "@/views/user/space/components/UserInfoField.vue";
-import {nextTick, onBeforeUnmount, onMounted, ref, useTemplateRef} from "vue";
+import {nextTick, onBeforeUnmount, onMounted, ref, useTemplateRef, watch} from "vue";
 import api from "@/js/http/api";
 import {useRoute} from "vue-router";
 import Character from "@/components/character/Character.vue";
@@ -23,12 +23,26 @@ const isLoading=ref(false)
 const hasCharacters=ref(true)
 const route=useRoute()
 const sentinelRef=useTemplateRef('sentinel-ref')
+
+function reset(){
+  userProfile.value=null
+  characters.value=[]
+  isLoading.value=false
+  hasCharacters.value=true
+  loadMore()
+}
+// 监测user_id变化，变化后自动刷新
+watch(()=>route.params.user_id,()=>{
+  reset()
+})
+
 function checkSentinelVisible() {  // 判断哨兵是否能被看到
   if (!sentinelRef.value) return false
 
   const rect = sentinelRef.value.getBoundingClientRect()
   return rect.top < window.innerHeight && rect.bottom > 0
 }
+
 async function loadMore(){
   // 如果正在加载中或者没有角色了
   if(isLoading.value||!hasCharacters.value)return
