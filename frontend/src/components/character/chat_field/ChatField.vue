@@ -2,6 +2,8 @@
 import {computed, useTemplateRef} from "vue";
 import InputField from "@/components/character/chat_field/input_field/InputField.vue";
 import CharacterPhotoField from "@/components/character/chat_field/character_photo_field/CharacterPhotoField.vue";
+import SendIcon from "@/components/character/icons/SendIcon.vue";
+import MicIcon from "@/components/character/icons/MicIcon.vue";
 
 const props=defineProps(['friend'])
 const modalRef=useTemplateRef('modal-ref')

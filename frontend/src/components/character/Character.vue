@@ -8,11 +8,12 @@ import ChatField from "@/components/character/chat_field/ChatField.vue";
 import {useRouter} from "vue-router";
 
 // 下面的html语句直接用character，canEdit变量了，js不能直接使用需要props.
-const props=defineProps(['character','canEdit'])
+const props=defineProps(['character','canEdit','canRemoveFriend','friendId'])
 const emit=defineEmits(['remove'])
 const isHover=ref(false)
 const user=useUserStore()
 const router=useRouter()
+//有await就需要async
 async function handleRemoveCharacter(){
   try{
     const res=await api.post('api/create/character/remove/',{
@@ -29,6 +30,20 @@ async function handleRemoveCharacter(){
     console.log(err)
   }
 }
+
+async function handleRemoveFriend(){
+  try{
+    const res=await api.post('api/friend/remove/',{
+      friend_id:props.friendId,
+    })
+    if(res.data.result==='success'){
+      emit('remove',props.friendId)
+    }
+  }catch (err){
+    console.log(err)
+  }
+}
+
 const chatFieldRef=useTemplateRef('chat-field-ref')
 const friend=ref(null)
 async function openChatField(){
@@ -61,6 +76,7 @@ async function openChatField(){
         <!-- 在 <template> 中访问 props，不需要加 props.在 <script> 中访问 props 的值，必须加 props. -->
         <img :src="character.background_image" class="transition-transform duration-300" :class="{'scale-120':isHover}" alt="">
         <div class="absolute left-0 top-50 w-60 h-50 bg-linear-to-t from-white/40 to-transparent"></div>
+        <!--如果父组件没有传canEdit变量，那么默认为false其它的也一样，那么就可以实现不同父组件调用该组件而实现不同展示的结果-->
         <div v-if="canEdit&&character.author.user_id===user.id" class="absolute right-0 top-50">
           <RouterLink :to="{name:'update-character',params:{character_id:character.id}}" class="btn btn-circle btn-ghost bg-transparent">
             <UpdateIcon></UpdateIcon>
@@ -69,6 +85,14 @@ async function openChatField(){
             <RemoveIcon></RemoveIcon>
           </button>
         </div>
+
+        <div v-if="canRemoveFriend" class="absolute right-0 top-50">
+          <!--.stop表示不会触发父组件的click-->
+          <button @click.stop="handleRemoveFriend" class="btn btn-circle btn-ghost bg-transparent">
+            <RemoveIcon></RemoveIcon>
+          </button>
+        </div>
+
         <div class="absolute left-4 top-54 avatar">
           <div class="w-16 rounded-full ring-3 ring-white">
             <img :src="character.photo" alt="">

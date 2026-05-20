@@ -20,9 +20,7 @@ class HomepageIndexView(APIView):
                 queryset=Character.objects.all()
             characters_row=queryset.order_by('-id')[items_count:items_count+20]
             characters=[]
-            print('.'*9)
             for character in characters_row:
-                print(character.name)
                 author=character.author
                 characters.append({
                     'id':character.id,
