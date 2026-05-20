@@ -31,7 +31,7 @@ function reset(){
   hasCharacters.value=true
   loadMore()
 }
-// 监测user_id变化，变化后自动刷新
+// 监测网址的user_id变化，变化后自动刷新
 watch(()=>route.params.user_id,()=>{
   reset()
 })
