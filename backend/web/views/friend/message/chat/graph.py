@@ -13,7 +13,13 @@ class ChatGraph:
         llm=ChatOpenAI(
             model='deepseek-v4-pro',
             openai_api_key=os.getenv('API_KEY'),#读取环境变量
-            openai_api_base=os.getenv('API_BASE')# 要访问的url
+            openai_api_base=os.getenv('API_BASE'),# 要访问的url
+            streaming=True,#流式输出，不全部一次性输出
+            model_kwargs={
+                "stream_options": {
+                    "include_usage": True,  # 输出token消耗数量
+                }
+            }
         )
 
         #相当于一个字典：{

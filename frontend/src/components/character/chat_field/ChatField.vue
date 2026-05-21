@@ -1,5 +1,5 @@
 <script setup lang="js">
-import {computed, useTemplateRef} from "vue";
+import {computed, nextTick, useTemplateRef} from "vue";
 import InputField from "@/components/character/chat_field/input_field/InputField.vue";
 import CharacterPhotoField from "@/components/character/chat_field/character_photo_field/CharacterPhotoField.vue";
 import SendIcon from "@/components/character/icons/SendIcon.vue";
@@ -7,8 +7,12 @@ import MicIcon from "@/components/character/icons/MicIcon.vue";
 
 const props=defineProps(['friend'])
 const modalRef=useTemplateRef('modal-ref')
-function showModal(){
+const inputRef=useTemplateRef('input-ref')
+async function showModal(){
   modalRef.value.showModal()
+  await nextTick()
+  // 实现自动聚焦输入框
+  inputRef.value.focus()
 }
 // 将角色的模态框背景图片设置成聊天背景：
 const modalStyle = computed(() => {
@@ -35,7 +39,11 @@ defineExpose({
 :style 是 v-bind:style 的简写-->
     <div class="modal-box w-90 h-150" :style="modalStyle">
       <button @click="modalRef.close()" class="btn btn-sm btn-circle btn-ghost bg-transparent absolute right-1 top-1">✕</button>
-      <InputField></InputField>
+      <InputField
+          v-if="friend"
+          ref="input-ref"
+          :friendId="friend.id"
+      ></InputField>
       <CharacterPhotoField v-if="friend" :character="friend.character"></CharacterPhotoField>
     </div>
   </dialog>
