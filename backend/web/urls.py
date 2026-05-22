@@ -8,6 +8,7 @@ from web.views.create.character.update import UpdateCharacterView
 from web.views.friend.get_list import GetListFriendView
 from web.views.friend.get_or_create import GetOrCreateFriendView
 from web.views.friend.message.chat.chat import MessageChatView
+from web.views.friend.message.get_history import GetHistoryView
 from web.views.friend.remove import RemoveFriendView
 from web.views.homepage.index import HomepageIndexView
 from web.views.index import index
@@ -37,6 +38,7 @@ urlpatterns = [
     path('api/friend/remove/',RemoveFriendView.as_view()),
     path('api/friend/get_list/',GetListFriendView.as_view()),
     path('api/friend/message/chat',MessageChatView.as_view()),
+    path('api/friend/message/get_history',GetHistoryView.as_view()),
     path('',index),
     #ctrl+点击index跳转到index.py对应index.html即前端页面，再根据前端设置的路径跳到对应页面（前端页面的RouterView->router/index.js）就不会出现比如用户登录后点击创作
     # 即http://127.0.0.1:8000/create/不会出现页面找不到

@@ -20,15 +20,16 @@ class Friend(models.Model):
 class Message(models.Model):
     friend=models.ForeignKey(Friend,on_delete=models.CASCADE)
     user_message=models.TextField(max_length=500)
-    input=models.TextField(max_length=500)
+    input=models.TextField(max_length=10000)#输入会包含很多提示词
     output=models.TextField(max_length=500)
     # 输入Token:你发给 AI 的内容长度,输出 Token:AI 回复给你的内容长度
     input_tokens=models.IntegerField(default=0)
     output_tokens=models.IntegerField(default=0)
+    total_tokens=models.IntegerField(default=0)
     create_time=models.DateTimeField(default=now)
 
     def __str__(self):
-        return f"{self.friend.me.user.username}-{self.user_message[:50]}-{localtime(self.create_time).strftime('%Y-%m-%d %H:%M:%S')}"
+        return f"{self.friend.character.name} - {self.friend.me.user.username}-{self.user_message[:50]}-{localtime(self.create_time).strftime('%Y-%m-%d %H:%M:%S')}"
 
 
 

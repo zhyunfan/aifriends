@@ -7,6 +7,7 @@ import streamApi from "@/js/http/streamApi.js";
 
 
 const props=defineProps(['friendId'])
+const emit=defineEmits(['pushBackMessage','addToLastMessage'])
 const inputRef=useTemplateRef('input-ref')
 const message=ref('')// 响应式数据
 // 避免用户连续发消息
@@ -22,18 +23,37 @@ async function handleSend(){
   if(!content)return
   message.value=''
 
+  //要用到v-for,需要唯一id,否则出问题所以用uuid
+  emit('pushBackMessage',{role:'user',content:content,id:crypto.randomUUID()})
+  emit('pushBackMessage',{role:'ai',content:'',id:crypto.randomUUID()})
+
   try{
+    // 用户输入 → InputField.vue 调用 streamApi → streamApi 发送请求到 chat.py
+    //                                           ↓
+    //                                 chat.py 返回流式数据yield
+    //                                           ↓
+    //                                 streamApi 内部 onmessage 接收  (fetch-event-source 内部)
+    //                                           ↓
+    //                                 调用你传入的 onmessage 回调(检查 options.onmessage 是否存在)
+    //                                           ↓
+    //                                 InputField.vue 中的回调执行
     await streamApi('/api/friend/message/chat',{
       body:{
         friend_id:props.friendId,
         message:content,
       },
+      //回调函数就是你写好但不自己调用，而是交给别人去调用的函数。
+      // 执行顺序：
+      // 1. 调用 streamApi，传入两个回调函数
+      // 2. 继续执行后面的代码（如果有）
+      // 3. 服务器返回数据时 → streamApi 自动调用 onmessage
+      // 4. 网络出错时 → streamApi 自动调用 onerror
       // 用来接收消息
-      onmessage(data,isDone){
+      onmessage(data,isDone){//是定义的 onmessage 回调函数的参数，由 streamApi 函数内部调用时传递进来的，data 和 isDone 只是参数占位符
         if(isDone){
           isProcessing=false
         }else if(data.content){
-          console.log(data.content)
+          emit('addToLastMessage',data.content)
         }
       },
       // 用来接收错误
@@ -68,7 +88,10 @@ defineExpose({
 <!--  发送和语音两个组件都是垂直居中-->
   <form @submit.prevent="handleSend" class="absolute bottom-4 left-2 h-12 w-86 flex items-center">
     <!--当 message 的值改变时，输入框的显示内容会自动更新,
-    当用户在输入框中输入内容时，message 的值会自动同步更新-->
+    当用户在输入框中输入内容时，message 的值会自动同步更新
+    JS script 中定义变量 message（响应式数据）
+    模板中 v-model="message" 去寻找同名的 message 变量
+    Vue 把它们连接起来，形成双向绑定-->
     <input
         ref="input-ref"
         v-model="message"
