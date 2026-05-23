@@ -71,6 +71,7 @@ class MessageChatView(APIView):
                 'result':'好友不存在'
             })
         friend=friends.first()
+        # app 是一个可执行的状态图
         app=ChatGraph.create_app()
         inputs={'messages':[HumanMessage(message)]}
         inputs=add_system_prompt(inputs,friend)
@@ -90,6 +91,9 @@ class MessageChatView(APIView):
             # stream流式回复，stream_mode="messages"	流模式：按消息粒度输出（不是按节点）
             # msg：当前收到的消息对象（通常是 AIMessageChunk）
             # metadata：消息的元数据（包含节点名、时间戳等信息）
+            # 流式执行 LangGraph 应用，并逐条获取生成的消息。
+            # inputs：初始输入数据（对话历史、用户消息等）
+            # stream_mode="messages"：指定流式模式为"消息模式"
             for msg,metadata in app.stream(inputs,stream_mode="messages"):
                 # 是不是消息片段
                 # BaseMessage	完整消息	一次性返回完整内容，不可变
