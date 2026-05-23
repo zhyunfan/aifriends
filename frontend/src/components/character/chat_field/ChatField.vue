@@ -52,7 +52,7 @@ defineExpose({
 </script>
 
 <template>
-  <!--模态框-->
+  <!--模态框里面定义了relative-->
   <dialog ref="modal-ref" class="modal">
 <!--    :style="modalStyle"：Vue 的动态样式绑定
 :style 是 v-bind:style 的简写-->

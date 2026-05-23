@@ -31,6 +31,21 @@ class Message(models.Model):
     def __str__(self):
         return f"{self.friend.character.name} - {self.friend.me.user.username}-{self.user_message[:50]}-{localtime(self.create_time).strftime('%Y-%m-%d %H:%M:%S')}"
 
+class SystemPrompt(models.Model):
+    # 用来说明是什么模块（回复模块，记忆模块）
+    # CharField只能一行，TextField能多行
+    title=models.CharField(max_length=100)
+    #定义一个顺序，因为一个模块可能提示词很长，要分块
+    #会把同一个模块的提示词安装order_number排序拼接到一块
+    order_number=models.IntegerField(default=0)
+    prompt=models.TextField(max_length=10000)
+    create_time=models.DateTimeField(default=now)
+    update_time=models.DateTimeField(default=now)
+
+    def __str__(self):
+        return f"{self.title}-{self.order_number}-{self.prompt[:50]}-{localtime(self.create_time).strftime('%Y-%m-%d %H:%M:%S')}"
+
+
 
 
 

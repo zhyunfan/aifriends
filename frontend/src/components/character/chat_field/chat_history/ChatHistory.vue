@@ -88,6 +88,8 @@
   })
   async function scrollToBottom(){
     await nextTick()
+    // 浏览器有自动保护机制，会自动将窗口往上到页面内容的底部
+    // 适用于任何拥有滚动条的 原生 HTML 元素
     scrollRef.value.scrollTop=scrollRef.value.scrollHeight
   }
 
@@ -100,6 +102,9 @@
   <!-- overflow-y-scroll溢出纵向滚动 -->
   <div ref="scroll-ref" class="absolute top-18 left-0 w-90 h-112 overflow-y-scroll no-scrollbar">
     <div ref="sentinel-ref" class="h-2"></div>
+    <!-- v-for用于列表渲染的指令，可以根据数组或对象循环生成多个元素/组件Message。
+          :message="message"：将当前循环的消息对象作为 prop 传递给 Message 组件
+          :character="character"：传递一个固定值（不随循环变化）,这里因为要渲染角色头像-->
     <Message
       v-for="message in history"
       :key="message.id"
@@ -109,13 +114,15 @@
 </template>
 
 <style scoped>
-/* 隐藏 Chrome, Safari 和 Opera 的滚动条 */
+/*Webkit 内核浏览器（Chrome、Safari、Opera、Edge 新版）
+隐藏 Chrome, Safari 和 Opera 的滚动条
+::-webkit-scrollbar 是 Webkit 浏览器的伪元素，用于自定义滚动条样式*/
 .no-scrollbar::-webkit-scrollbar {
   display: none;
 }
 /* 隐藏 IE, Edge 和 Firefox 的滚动条 */
 .no-scrollbar {
-  -ms-overflow-style: none; /* IE and Edge */
-  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE and Edge 隐藏滚动条*/
+  scrollbar-width: none; /* Firefox 将滚动条宽度设为 0（隐藏）*/
 }
 </style>

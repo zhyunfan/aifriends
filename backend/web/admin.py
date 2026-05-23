@@ -1,7 +1,7 @@
 from django.contrib import admin
 from web.models.user import UserProfile
 from web.models.character import Character
-from web.models.friend import Friend,Message
+from web.models.friend import Friend,Message,SystemPrompt
 
 # 注解表示注册到admin里面
 @admin.register(UserProfile)
@@ -20,3 +20,7 @@ class FriendAdmin(admin.ModelAdmin):
 @admin.register(Message)
 class MessageAdmin(admin.ModelAdmin):
     raw_id_fields = ('friend',)
+
+
+# 因为没有外键，直接注册到admin里就可以了
+admin.site.register(SystemPrompt)

@@ -1,13 +1,14 @@
 import json
+from pprint import pprint
 
 from django.http import StreamingHttpResponse
-from langchain_core.messages import HumanMessage, BaseMessageChunk
+from langchain_core.messages import HumanMessage, BaseMessageChunk, SystemMessage, AIMessage
 from rest_framework.renderers import BaseRenderer
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 
-from web.models.friend import Friend, Message
+from web.models.friend import Friend, Message, SystemPrompt
 from web.views.friend.message.chat.graph import ChatGraph
 
 # django的DRF不能直接返回sse需要伪渲染器
@@ -22,6 +23,34 @@ class SSERenderer(BaseRenderer):
     # 重写渲染方法，直接返回原始数据，不做 JSON 序列化或其他转换
     def render(self, data, accepted_media_type=None, renderer_context=None):
         return data
+
+def add_system_prompt(state,friend):
+    # 之前已有的信息 e.g. graph.py中的model_call的参数,
+    #但是和graph.py中的信息不同的是，graph.py中添加信息时设置了状态图新信息会自动追加到信息末尾，这里该函数不会加到状态图里，状态图里的函数才会自动追加
+    msgs=state['messages']
+    system_prompts=SystemPrompt.objects.filter(title='回复').order_by('order_number')
+    prompt=''
+    for sp in system_prompts:
+        prompt+=sp.prompt
+    prompt+=f'\n【角色性格】\n{friend.character.profile}\n'
+    # msgs 是一个列表（包含已有的 HumanMessage、AIMessage 等）
+    # [SystemMessage(prompt)] 变成列表是因为需要和 msgs（也是一个列表）进行列表拼接操作。
+    # [SystemMessage(prompt)] 是一个只包含一个元素的列表
+    return {'messages':[SystemMessage(prompt)]+msgs}#创建系统消息对象,就是给 AI 看的"剧本"，告诉 AI 它应该扮演什么角色、遵守什么规则
+
+#加上最近的10条对话
+def add_recent_messages(state,friend):
+    msgs=state['messages']
+    #要把数据翻转需要变成list
+    message_raw=list(Message.objects.filter(friend=friend).order_by('-id')[:10])
+    message_raw.reverse()
+    messages=[]
+    for message in message_raw:
+        #分别加用户信息和ai信息
+        messages.append(HumanMessage(message.input))
+        messages.append(AIMessage(message.output))
+    #加到系统信息和用户问题中间，即有2个元素
+    return {'messages':msgs[:1]+messages+msgs[-1:]}
 
 class MessageChatView(APIView):
     # DRF 框架层面的配置属性，由 DRF 内部自动读取和使用
@@ -44,6 +73,10 @@ class MessageChatView(APIView):
         friend=friends.first()
         app=ChatGraph.create_app()
         inputs={'messages':[HumanMessage(message)]}
+        inputs=add_system_prompt(inputs,friend)
+        inputs=add_recent_messages(inputs,friend)
+        # 自动对数据结构进行格式化、缩进和换行，让输出更易读。
+        # pprint(inputs)
         # # invoke非流式回复,stream流式
         # res=app.invoke(inputs)
         # # 有2个元素，一个是HumanMessage(message)，一个是AIMessage
