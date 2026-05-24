@@ -9,7 +9,7 @@ from web.models.user import UserProfile
 class Friend(models.Model):
     me=models.ForeignKey(UserProfile,on_delete=models.CASCADE)
     character=models.ForeignKey(Character,on_delete=models.CASCADE)
-    # 短期记忆
+    # 长期记忆
     memory=models.TextField(default='',max_length=5000,blank=True,null=True)
     create_time=models.DateTimeField(default=now)
     update_time=models.DateTimeField(default=now)

@@ -49,7 +49,8 @@ class ChatGraph:
         llm=ChatOpenAI(
             model='deepseek-v4-pro',
             openai_api_key=os.getenv('API_KEY'),#读取环境变量
-            openai_api_base=os.getenv('API_BASE'),# 要访问的url
+            # API 调用就是使用别人已经训练好的大模型，你不需要自己训练，只需要发送请求来获取结果。
+            openai_api_base=os.getenv('API_BASE'),# 要访问的url告诉 ChatOpenAI 去哪个 URL 调用 API
             streaming=True,#流式输出，不全部一次性输出
             model_kwargs={
                 "stream_options": {
@@ -72,13 +73,21 @@ class ChatGraph:
             # Annotated 不改变类型，只是附加说明书，就像说："这是消息序列，合并的时候要用 add_messages 方式"
             #e.g. class State(TypedDict):
             #     messages: Annotated[list, add_messages]  # 告诉：这是一个列表，合并时要 add_messages
+            # BaseMessage (抽象基类)
+            #     ├── HumanMessage      (用户)
+            #     ├── AIMessage         (AI助手)
+            #     ├── SystemMessage     (系统设定)  ← 是的，它是 BaseMessage
+            #     ├── ToolMessage       (工具结果)
+            #     ├── FunctionMessage   (已弃用)
+            #     └── ChatMessage       (自定义角色)
             messages: Annotated[Sequence[BaseMessage], add_messages]
 
         # AI 调用节点
         def model_call(state:AgentState)->AgentState:
             # pprint(state)
             # 对大模型的调用，将消息列表传进去，传入历史消息
-            res=llm.invoke(state['messages'])
+            # ↓↓↓ 这一行会发送 HTTP 请求到 API 服务器
+            res = llm.invoke(state['messages'])  # ← API 调用在这里！
             # 检测到messages字段有add_messages注解，自动调用 add_messages(旧消息列表, [res])将合并结果写回 state['messages']
             # 如果没有用Annotated设置add_message注解，就会用我们传统的默认观念是覆盖原数据了
             #伪代码

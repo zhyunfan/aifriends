@@ -10,6 +10,8 @@ from rest_framework.permissions import IsAuthenticated
 
 from web.models.friend import Friend, Message, SystemPrompt
 from web.views.friend.message.chat.graph import ChatGraph
+from web.views.friend.message.memory.update import update_memory
+
 
 # django的DRF不能直接返回sse需要伪渲染器
 # DRF 默认支持的响应格式是 JSON、XML 等完整响应，而 SSE 是流式响应，两者不兼容
@@ -33,6 +35,8 @@ def add_system_prompt(state,friend):
     for sp in system_prompts:
         prompt+=sp.prompt
     prompt+=f'\n【角色性格】\n{friend.character.profile}\n'
+    # 将长期记忆加到系统提示词里
+    prompt+=f'【长期记忆】\n{friend.memory}\n'
     # msgs 是一个列表（包含已有的 HumanMessage、AIMessage 等）
     # [SystemMessage(prompt)] 变成列表是因为需要和 msgs（也是一个列表）进行列表拼接操作。
     # [SystemMessage(prompt)] 是一个只包含一个元素的列表
@@ -144,6 +148,10 @@ class MessageChatView(APIView):
         # return Response({
         #     'result':'success',
         # })
+            #相当于每输出10条更新一次记忆，因为update_memory中的messages是取最近的10条
+            if Message.objects.filter(friend=friend).count()%1==0:
+                update_memory(friend)
+
 
         # StreamingHttpResponse：Django 提供的流式响应类，适合传输大文件或实时数据流。
         # event_stream()# 生成器函数，产生流式数据
