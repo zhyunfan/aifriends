@@ -32,10 +32,10 @@ def update_memory(friend):
             create_human_message(friend),
         ]
     }
-    pprint(inputs)
+    # pprint(inputs)
     res=app.invoke(inputs)
     friend.memory=res['messages'][-1].content
-    pprint(friend.memory)
+    # pprint(friend.memory)
     friend.update_time=now()
     # 保存对象到数据库，它既可以是新增，也可以是更新
     # 如果对象没有主键(id) → INSERT (新增)

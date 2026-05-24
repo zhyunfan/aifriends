@@ -2,13 +2,19 @@ import os
 from pprint import pprint
 from typing import TypedDict, Annotated, Sequence
 
+import lancedb
 from django.utils.timezone import localtime, now
+from lancedb.pydantic import vector
+from langchain_community.vectorstores import LanceDB
 from langchain_core.messages import BaseMessage
 from langchain_core.tools import tool
 from langchain_openai import ChatOpenAI
 from langgraph.constants import START, END
 from langgraph.graph import add_messages, StateGraph
 from langgraph.prebuilt import ToolNode
+
+from web.documents.utils.custom_embeddings import CustomEmbeddings
+
 
 # # 用户输入
 # "现在几点了？"
@@ -40,10 +46,29 @@ class ChatGraph:
         @tool
         def get_time()->str:
             # 下面的3对引号表示文档，当鼠标悬停时出现,工具函数一定要有文档，文档是告诉大模型干嘛的
+            # 大模型会读取""""""(docstring)来理解这个工具是干什么的
             """当需要查询精确时间时，调用此函数。返回格式为：[年-月-日 时:分:秒]"""
             return localtime(now()).strftime('%Y-%m-%d %H:%M:%S')
 
-        tools=[get_time]
+        @tool
+        def search_knowledge_base(query:str)->str:
+            """当用户查询阿里云百炼平台的相关信息时，调用此函数，输入为要查询的问题，输出为查询结果"""
+            db=lancedb.connect('./web/documents/lancedb_storage')
+            embeddings=CustomEmbeddings()
+            # 直接连接到已存在的数据库表,LanceDB.from_documents() - 创建新表并插入数据
+            vector_db=LanceDB(
+                connection=db,
+                embedding=embeddings,
+                table_name='my_knowledge_base',
+            )
+            # 根据问题，从数据库中找出最相关的3个文档片段,docs：返回的文档列表
+            docs=vector_db.similarity_search(query,k=3)
+            #越是人能看懂，大模型就能看懂
+            context='\n\n'.join([f'内容片段：{i+1}\n{doc.page_content}' for i,doc in enumerate(docs)])
+            return f'从知识库中找到以下相关信息：\n\n{context}\n'
+
+
+        tools=[get_time,search_knowledge_base]
 
 
         llm=ChatOpenAI(
