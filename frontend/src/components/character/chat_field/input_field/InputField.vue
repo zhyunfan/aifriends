@@ -17,10 +17,12 @@ function focus(){
   inputRef.value.focus()
 }
 async function handleSend(){
-  if(isProcessing)return
-  isProcessing=true
   const content=message.value.trim()
   if(!content)return
+
+  if(isProcessing)return
+  isProcessing=true
+
   message.value=''
 
   //要用到v-for,需要唯一id,否则出问题所以用uuid
