@@ -46,6 +46,10 @@ function handlePushFrontMessage(msg){
     //往后加是push,往前加是unshift
     history.value.unshift(msg)
 }
+function handleClose(){
+  modalRef.value.close()
+  inputRef.value.close()
+}
 defineExpose({
   showModal
 })
@@ -57,7 +61,7 @@ defineExpose({
 <!--    :style="modalStyle"：Vue 的动态样式绑定
 :style 是 v-bind:style 的简写-->
     <div class="modal-box w-90 h-150" :style="modalStyle">
-      <button @click="modalRef.close()" class="btn btn-sm btn-circle btn-ghost bg-transparent absolute right-1 top-1">✕</button>
+      <button @click="handleClose" class="btn btn-sm btn-circle btn-ghost bg-transparent absolute right-1 top-1">✕</button>
       <ChatHistory
         ref="chat-history-ref"
         v-if="friend"

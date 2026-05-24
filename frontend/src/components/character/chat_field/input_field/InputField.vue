@@ -4,24 +4,30 @@ import SendIcon from "@/components/character/icons/SendIcon.vue";
 import MicIcon from "@/components/character/icons/MicIcon.vue";
 import {ref, useTemplateRef} from "vue";
 import streamApi from "@/js/http/streamApi.js";
+import Microphone from "@/components/character/chat_field/input_field/Microphone.vue";
 
 
 const props=defineProps(['friendId'])
 const emit=defineEmits(['pushBackMessage','addToLastMessage'])
 const inputRef=useTemplateRef('input-ref')
 const message=ref('')// 响应式数据
-// 避免用户连续发消息
-let isProcessing=false
+let processId=0
+const showMic=ref(false)//是否显示麦克风组件
 
 function focus(){
   inputRef.value.focus()
 }
-async function handleSend(){
-  const content=message.value.trim()
+//event 参数会自动有值，不需要你手动传递，Vue 会自动把原生 DOM 事件对象作为第一个参数传给 handleSend
+async function handleSend(event,audio_msg){
+  let content
+  if(audio_msg){
+    content=audio_msg.trim()
+  }else{
+    content=message.value.trim()
+  }
   if(!content)return
 
-  if(isProcessing)return
-  isProcessing=true
+  const curId=++processId
 
   message.value=''
 
@@ -52,22 +58,19 @@ async function handleSend(){
       // 4. 网络出错时 → streamApi 自动调用 onerror
       // 用来接收消息
       onmessage(data,isDone){//是定义的 onmessage 回调函数的参数，由 streamApi 函数内部调用时传递进来的，data 和 isDone 只是参数占位符
-        if(isDone){
-          isProcessing=false
-        }else if(data.content){
+        //实现打断的功能，processId是全局的，curId是局部的，这里相当于直接结束了handleSend函数
+        if(curId!==processId)return
+        if(data.content){
           emit('addToLastMessage',data.content)
         }
       },
       // 用来接收错误
       onerror(){
-        isProcessing=false
       },
     })
   }catch (err){
     console.log(err)
-    isProcessing=false
   }
-
 
   /*
   http请求不适用了
@@ -81,14 +84,22 @@ async function handleSend(){
     console.log(err)
   }*/
 }
+function close(){
+  ++processId//当关闭聊天窗口时就停止接收消息
+  showMic.value=false//当关闭窗口后如果再次点开该窗口，还是文字输入
+}
+function handleStop(){
+  ++processId
+}
 defineExpose({
   focus,
+  close,
 })
 </script>
 
 <template>
 <!--  发送和语音两个组件都是垂直居中-->
-  <form @submit.prevent="handleSend" class="absolute bottom-4 left-2 h-12 w-86 flex items-center">
+  <form v-if="!showMic" @submit.prevent="handleSend" class="absolute bottom-4 left-2 h-12 w-86 flex items-center">
     <!--当 message 的值改变时，输入框的显示内容会自动更新,
     当用户在输入框中输入内容时，message 的值会自动同步更新
     JS script 中定义变量 message（响应式数据）
@@ -101,14 +112,20 @@ defineExpose({
         type="text"
         placeholder="文本输入..."
     >
-    <!--    div方块是居中的，但是里面的组件没有居中，因此div也需要设置居中-->
+    <!--div方块是居中的，但是里面的组件没有居中，因此div也需要设置居中-->
     <div @click="handleSend" class="absolute right-2 w-8 h-8 flex justify-center items-center cursor-pointer">
       <SendIcon></SendIcon>
     </div>
-    <div class="absolute right-10 w-8 h-8 flex justify-center items-center cursor-pointer">
+    <div @click="showMic=true" class="absolute right-10 w-8 h-8 flex justify-center items-center cursor-pointer">
       <MicIcon></MicIcon>
     </div>
   </form>
+  <Microphone
+      v-else
+      @close="showMic=false"
+      @send="handleSend"
+      @stop="handleStop"
+  ></Microphone>
 </template>
 
 <style scoped>
