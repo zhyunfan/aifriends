@@ -103,6 +103,8 @@ class MessageChatView(APIView):
             content_type="text/event-stream"
         )
         response['Cache-Control']='no-cache'#响应头禁止缓存
+        #不要Nginx缓存，要不然就看不到流式输出的效果
+        response['X-Accel-Buffering'] = 'no'
         return response
 
     async def tts_sender(self,app,inputs,mq,ws,task_id):
