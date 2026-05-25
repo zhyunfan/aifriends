@@ -26,14 +26,14 @@ class ASRView(APIView):
         pcm_data=audio.read()
         # 同步地执行一个异步函数 run_asr_tasks，并将返回的结果赋值给 text 变量
         # asyncio.run(...)	同步等待异步任务完成
-        # asyncio.run() 是同步等待，必须等 self.run_asr_tasks() 完成后才会执行下一行代码
+        # asyncio.run() 是运行协程,同步等待，必须等 协程函数self.run_asr_tasks() 完成后才会执行下一行代码
         text=asyncio.run(self.run_asr_tasks(pcm_data))
         return Response({
             'result':'success',
             'text':text,
         })
 
-    #发送数据的协程
+    #发送音频二进制数据的协程
     async def asr_sender(self,pcm_data,ws,task_id):
         #阿里云每次发二进制数据，建议每次发送100ms音频，并间隔100ms
         #阿里云一秒执行16000次，因为pcm16位2字节，所以一秒执行32000字节，那么100ms即0.1s执行3200字节
@@ -56,10 +56,11 @@ class ASRView(APIView):
         }))
 
 
+    # 服务器返回的 JSON 文本消息
     async def asr_receiver(self,ws):
         text=''
         async for msg in ws:
-            # 把数据变成字段
+            # 把数据变成json字段
             data=json.loads(msg)
             event=data['header']['event']
             if event=='result-generated':

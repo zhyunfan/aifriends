@@ -117,7 +117,7 @@ const sendToBackend = async (arrayBuffer) => {
     // 普通文本字段 → request.POST 或 request.data
     const res=await api.post('/api/friend/message/asr/asr',formData)
     const data=res.data
-    console.log(data)
+    // console.log(data)
     if(data.result==='success'){
       emit('send',null,data.text)
     }
