@@ -21,8 +21,10 @@ function focus(){
 async function handleSend(event,audio_msg){
   let content
   if(audio_msg){
+    // audio_msg 是普通参数,可以直接使用
     content=audio_msg.trim()
   }else{
+    //ref 对象，需要 .value 访问
     content=message.value.trim()
   }
   if(!content)return
@@ -58,7 +60,7 @@ async function handleSend(event,audio_msg){
       // 4. 网络出错时 → streamApi 自动调用 onerror
       // 用来接收消息
       onmessage(data,isDone){//是定义的 onmessage 回调函数的参数，由 streamApi 函数内部调用时传递进来的，data 和 isDone 只是参数占位符
-        //实现打断的功能，processId是全局的，curId是局部的，这里相当于直接结束了handleSend函数
+        //实现打断的功能，processId是全局的，curId是局部的，这里相当于直接结束了handleSend函数,就打断了对话（因为是流式输出）
         if(curId!==processId)return
         if(data.content){
           emit('addToLastMessage',data.content)
@@ -120,6 +122,7 @@ defineExpose({
       <MicIcon></MicIcon>
     </div>
   </form>
+  <!--说话中的音浪效果-->
   <Microphone
       v-else
       @close="showMic=false"

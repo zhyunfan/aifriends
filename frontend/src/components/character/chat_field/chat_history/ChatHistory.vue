@@ -57,7 +57,7 @@
             content:m.user_message,
             id:crypto.randomUUID(),
           })
-          //最后一个更新的就是最后一个id
+          //循环结束后就是最后一个更新的信息的id
           lastMessageId=m.id
         }
         await nextTick()
@@ -74,7 +74,8 @@
     await loadMore()
     observer=new IntersectionObserver(entries => {
       entries.forEach(entry=>{
-        if(entry.isIntersecting){
+        //交叉状态 = 目标元素 与 视口（或指定的祖先元素）发生了重叠
+        if(entry.isIntersecting){//isIntersecting === true → 元素在屏幕上能看到
           loadMore()
         }
       })
@@ -88,7 +89,7 @@
   })
   async function scrollToBottom(){
     await nextTick()
-    // 浏览器有自动保护机制，会自动将窗口往上到页面内容的底部
+    // 浏览器有自动保护机制，当窗口太往下时会自动将窗口往上到页面内容的底部
     // 适用于任何拥有滚动条的 原生 HTML 元素
     scrollRef.value.scrollTop=scrollRef.value.scrollHeight
   }
