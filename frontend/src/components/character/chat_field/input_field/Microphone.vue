@@ -35,7 +35,8 @@ let vadInstance = null;
 //非流式（Non-streaming）ASR，也叫一句话识别或语音文件识别
 const startRecording = async () => {
   //vad/：服务器上的一个目录路径:frontend/public/vad
-  const baseUrl = "http://127.0.0.1:8000/static/frontend/vad/";
+  // const baseUrl = "http://127.0.0.1:8000/static/frontend/vad/";
+  const baseUrl = "http://localhost:5173/vad/";
   try {
     // 1. 初始化 VAD 实例
     vadInstance = await MicVAD.new({

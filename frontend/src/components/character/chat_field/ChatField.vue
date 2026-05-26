@@ -47,7 +47,7 @@ function handlePushFrontMessage(msg){
     history.value.unshift(msg)
 }
 function handleClose(){
-  modalRef.value.close()
+  // modalRef.value.close()//@close触发时，模态框已经关闭了
   inputRef.value.close()
 }
 defineExpose({
@@ -56,12 +56,12 @@ defineExpose({
 </script>
 
 <template>
-  <!--模态框里面定义了relative-->
-  <dialog ref="modal-ref" class="modal">
+  <!--模态框里面定义了relative    close事件可以处理按esc键后再次打开聊天框会从之前点击的麦克风转为文本框-->
+  <dialog ref="modal-ref" class="modal" @close="handleClose">
 <!--    :style="modalStyle"：Vue 的动态样式绑定
 :style 是 v-bind:style 的简写-->
     <div class="modal-box w-90 h-150" :style="modalStyle">
-      <button @click="handleClose" class="btn btn-sm btn-circle btn-ghost bg-transparent absolute right-1 top-1">✕</button>
+      <button @click="modalRef.close()" class="btn btn-sm btn-circle btn-ghost bg-transparent absolute right-1 top-1">✕</button>
       <ChatHistory
         ref="chat-history-ref"
         v-if="friend"

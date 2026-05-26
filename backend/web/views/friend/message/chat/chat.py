@@ -114,8 +114,9 @@ class MessageChatView(APIView):
         # 流式执行 LangGraph 应用，并逐条获取生成的消息。
         # inputs：初始输入数据（对话历史、用户消息等）
         # stream_mode="messages"：指定流式模式为"消息模式"
-        # 下面改成异步版本：for msg, metadata in app.stream(inputs, stream_mode="messages"):
-        async for msg, metadata in app.astream(inputs, stream_mode="messages"):
+        # 下面改成异步版本：for msg, metadata in app.stream(inputs, stream_mode="messages"):同步迭代器
+        # 异步迭代器：等待数据时，控制权让给“其他协程”，而不是“同代码块的下一个迭代器”
+        async for msg, metadata in app.astream(inputs, stream_mode="messages"):#将用户问题给app，产生ai答案文本，下面顺便把ai答案文本加入队列，然后把文本发送给语音合成大模型，tts_receiver可以得到语音合成的音频数据，在tts_receiver函数中将音频数据加入队列
             # 是不是消息片段
             # BaseMessage	完整消息	一次性返回完整内容，不可变
             # BaseMessageChunk	消息块/片段	流式输出中的一小部分，可以拼接成完整消息
@@ -136,6 +137,7 @@ class MessageChatView(APIView):
                     }))
                     # 将一条消息以非阻塞的方式放入队列中,非阻塞方式放入数据，队列满时立即抛异常,不会死锁
                     mq.put_nowait({'content':msg.content})
+                    # print(msg.content)#是文本内容
                 # usage_metadata 字段（Token 使用统计）
                 # # usage_metadata 的典型结构
                 # msg.usage_metadata = {
@@ -160,20 +162,21 @@ class MessageChatView(APIView):
 
     #接收数据
     async def tts_receiver(self,mq,ws):
-        async for msg in ws:
+        async for msg in ws:#TTS 服务的主要输出是二进制音频
             if isinstance(msg,bytes):#接收的是字节数据就表示是音频
                 # sse支持文本数据，所以把二进制转为文本，但是体积会变成4/3
                 # 看起来像乱码，但实际是合法的 ASCII 字符
                 # PCM 音频数据（16字节）bytes([0x00, 0x01, 0x02, 0x03,...]-->输出: AAECAwH+/v38f4CBggAAAAA=
                 audio=base64.b64encode(msg).decode('UTF-8')
                 mq.put_nowait({'audio':audio})
+                print(audio)
             else:
                 data=json.loads(msg)
                 event=data['header']['event']
                 if event in ['task-finished','task-failed']:
                     break
 
-    #协程函数
+    #协程函数，关于音频合成的
     async def run_tts_tasks(self,app,inputs,mq):
         task_id=uuid.uuid4().hex
         api_key=os.getenv('API_KEY')
@@ -217,6 +220,7 @@ class MessageChatView(APIView):
             )
 
     # 副线程里面需要定义2个协程
+    # 在 Python 中，所有参数都是引用传递（更准确地说，是"对象引用传递"）
     def work(self,app,inputs,mq):
         try:
             # asyncio.run() 是运行协程
@@ -241,17 +245,17 @@ class MessageChatView(APIView):
         # 存储消耗量
         full_usage={}
         while True:
-            # 从消息队列中取数据
+            # 从消息队列中取数据,有ai回答的文本和音频数据
             msg=mq.get()
             if not msg:
                 break
-            # print(msg)
             if msg.get('content',None):
                 full_output+=msg['content']
                 # msg['content']	字典键访问	msg 是 dict 类型
                 # msg.content	属性访问	msg 是 对象 类型
                 yield f'data:{json.dumps({'content': msg['content']}, ensure_ascii=False)}\n\n'
             if msg.get('audio',None):
+                full_usage['audio']=msg['audio']
                 yield f'data:{json.dumps({'audio': msg['audio']}, ensure_ascii=False)}\n\n'
             if msg.get('usage',None):#token usage
                 full_usage=msg['usage']

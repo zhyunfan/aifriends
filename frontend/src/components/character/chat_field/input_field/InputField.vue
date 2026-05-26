@@ -20,18 +20,21 @@ let audioPlayer = new Audio(); // 全局播放器实例
 let audioQueue = [];           // 待写入 Buffer 的二进制队列
 let isUpdating = false;        // Buffer 是否正在写入
 
-//创建一段音频
+//创建一段音频,基于 Media Source Extensions (MSE) 的流式音频播放器初始化函数。它实现了边接收音频数据边播放的功能
 const initAudioStream = () => {
-    audioPlayer.pause();
+    audioPlayer.pause();// 停止当前播放
     audioQueue = [];
     isUpdating = false;
 
-    mediaSource = new MediaSource();
-    audioPlayer.src = URL.createObjectURL(mediaSource);
+    mediaSource = new MediaSource();// 创建媒体资源容器,是一个特殊的媒体流容器，可以动态往里添加数据
+    //URL.createObjectURL() 会生成一个临时 URL（如 blob:http://...），Audio 元素通过这个 URL 就可以播放动态添加的数据
+    audioPlayer.src = URL.createObjectURL(mediaSource);// 将 MediaSource 绑定到 audio 元素
 
     mediaSource.addEventListener('sourceopen', () => {
         try {
+            // 添加 MP3 格式的缓冲区
             sourceBuffer = mediaSource.addSourceBuffer('audio/mpeg');
+            //触发时机：sourceBuffer.appendBuffer() 写入完成后，通知你：上一块数据已经喂给播放器了，可以喂下一块了
             sourceBuffer.addEventListener('updateend', () => {
                 isUpdating = false;
                 processQueue();
@@ -43,16 +46,19 @@ const initAudioStream = () => {
 
     audioPlayer.play().catch(e => console.error("等待用户交互以播放音频"));
 };
-
+//有音频数据就取出来播放，没有就等着，正在播放就排队
+//把 audioQueue 队列中缓存的音频数据，一个个取出来交给浏览器的 sourceBuffer 去播放
+//sourceBuffer.updating	浏览器自己的标记，表示正在写入数据	浏览器的缓冲区正忙着，不能打断
 const processQueue = () => {
     if (isUpdating || audioQueue.length === 0 || !sourceBuffer || sourceBuffer.updating) {
         return;
     }
 
     isUpdating = true;
+    //shift() 会删除队列中的第一个元素并返回它
     const chunk = audioQueue.shift();
     try {
-        sourceBuffer.appendBuffer(chunk);
+        sourceBuffer.appendBuffer(chunk);// 把音频数据交给浏览器播放
     } catch (e) {
         console.error("SourceBuffer Append Error:", e);
         isUpdating = false;

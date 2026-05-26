@@ -27,6 +27,8 @@ class ASRView(APIView):
         # 同步地执行一个异步函数 run_asr_tasks，并将返回的结果赋值给 text 变量
         # asyncio.run(...)	同步等待异步任务完成
         # asyncio.run() 是运行协程,同步等待，必须等 协程函数self.run_asr_tasks() 完成后才会执行下一行代码
+        # 使用 async def 定义的函数就是协程函数，调用它时返回的是协程对象，而不是立即执行
+        # 挂起 = 主动暂停 + 让出CPU + 稍后恢复
         text=asyncio.run(self.run_asr_tasks(pcm_data))
         return Response({
             'result':'success',
@@ -59,6 +61,8 @@ class ASRView(APIView):
     # 服务器返回的 JSON 文本消息
     async def asr_receiver(self,ws):
         text=''
+        # 客户端发送待识别音频和finish-task指令的同时，服务端持续返回result-generated事件，该事件包含语音识别的结果。
+        # 可以通过result-generated事件中的sentence_end为True来判断该结果是最终结果否则是中间结果
         async for msg in ws:
             # 把数据变成json字段
             data=json.loads(msg)
@@ -87,7 +91,7 @@ class ASRView(APIView):
         headers={
             'Authorization':f'Bearer {api_key}'
         }
-        # 建立 WebSocket 连接
+        # 创建一个到 WebSocket 服务器 的连接,additional_headers - 自定义请求头,用于在建立 WebSocket 连接时发送额外的 HTTP 头信息
         # as ws	连接对象，用于收发消息
         async with websockets.connect(wss_url,additional_headers=headers) as ws:
             # 发送启动任务请求run-task
