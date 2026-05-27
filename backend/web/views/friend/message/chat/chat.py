@@ -169,7 +169,7 @@ class MessageChatView(APIView):
                 # PCM 音频数据（16字节）bytes([0x00, 0x01, 0x02, 0x03,...]-->输出: AAECAwH+/v38f4CBggAAAAA=
                 audio=base64.b64encode(msg).decode('UTF-8')
                 mq.put_nowait({'audio':audio})
-                print(audio)
+                # print(audio)
             else:
                 data=json.loads(msg)
                 event=data['header']['event']
