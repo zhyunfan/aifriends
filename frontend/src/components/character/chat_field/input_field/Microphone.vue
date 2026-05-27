@@ -8,6 +8,7 @@ import {onBeforeUnmount, onMounted, ref} from "vue";
 // - 0% 动物声音（因为场景不需要）
 import {MicVAD} from "@ricky0123/vad-web";//VAD（Voice Activity Detection）库，用于检测人声开始/结束
 import api from "@/js/http/api.js";
+import CONFIG_API from "@/js/config/config.js";
 
 const emit=defineEmits(['close','send','stop'])
 const isSpeaking=ref(false)
@@ -36,7 +37,7 @@ let vadInstance = null;
 const startRecording = async () => {
   //vad/：服务器上的一个目录路径:frontend/public/vad
   // const baseUrl = "http://127.0.0.1:8000/static/frontend/vad/";
-  const baseUrl = "http://localhost:5173/vad/";
+  const baseUrl = CONFIG_API.VAD_URL;
   try {
     // 1. 初始化 VAD 实例
     vadInstance = await MicVAD.new({
