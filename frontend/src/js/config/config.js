@@ -1,4 +1,4 @@
-const platform='django'//一共3个模式，前端vue,后端django,上线cloud
+const platform='vue'//一共3个模式，前端vue,后端django,上线cloud
 
 const CONFIG_API={
     HTTP_URL:'',//在/http/api.js和http/streamApi.js里面的URL

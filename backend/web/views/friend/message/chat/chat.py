@@ -177,7 +177,7 @@ class MessageChatView(APIView):
                     break
 
     #协程函数，关于音频合成的
-    async def run_tts_tasks(self,app,inputs,mq):
+    async def run_tts_tasks(self,app,inputs,mq,voice_id):
         task_id=uuid.uuid4().hex
         api_key=os.getenv('API_KEY')
         wss_url=os.getenv('WSS_URL')
@@ -199,7 +199,7 @@ class MessageChatView(APIView):
                     "model": "cosyvoice-v3-flash",
                     "parameters": {
                         "text_type": "PlainText",
-                        "voice": "longanyang",  # 音色
+                        "voice": voice_id,  # 音色
                         "format": "mp3",  # 音频格式
                         "sample_rate": 22050,  # 采样率
                         "volume": 50,  # 音量
@@ -221,10 +221,10 @@ class MessageChatView(APIView):
 
     # 副线程里面需要定义2个协程
     # 在 Python 中，所有参数都是引用传递（更准确地说，是"对象引用传递"）
-    def work(self,app,inputs,mq):
+    def work(self,app,inputs,mq,voice_id):
         try:
             # asyncio.run() 是运行协程
-            asyncio.run(self.run_tts_tasks(app,inputs,mq))
+            asyncio.run(self.run_tts_tasks(app,inputs,mq,voice_id))
         finally:
             # put_nowait()	立即放入，如果队列满了就抛异常	结束标记必须放进去，不能被阻塞
             # put()	如果队列满了就等待	生产者-消费者正常工作时
@@ -238,7 +238,7 @@ class MessageChatView(APIView):
         # 创建消息队列
         mq=Queue()
         # 定义一个线程(副线程)
-        thread=threading.Thread(target=self.work,args=(app,inputs,mq))
+        thread=threading.Thread(target=self.work,args=(app,inputs,mq,friend.character.voice.voice_id))
         thread.start()
 
         full_output=''
