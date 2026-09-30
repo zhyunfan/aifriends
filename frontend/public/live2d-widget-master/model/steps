@@ -1,0 +1,13 @@
+对于live2d-widget-master文件夹，不能用npm run build会报错因为少了SDK，挺麻烦的
+对于moc模型：
+    1.把model.json改为index.json
+    2.新建textures.cache文件。。。
+    3.每次加一个moc模型就要在model_list.json中添加一个模型的文件夹名称,在autoload.js中设置modelId,并且在浏览器f12运行
+     localStorage.removeItem("modelId");
+     localStorage.removeItem("modelTexturesId");
+     location.reload();
+    4.如果想改模型大小，在index.json中修改："layout": {
+        "center_x": 0.0,
+        "center_y": -0.3,
+        "width": 2
+      }

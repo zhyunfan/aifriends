@@ -15,7 +15,7 @@ const searchQuery=ref('')
 const router=useRouter()
 const route=useRoute()
 // 刷新页面之后能把网站url中q的值发生变化就把值赋给搜索输入框
-//其实是route.query.q发生变化,route.query获取当前页面 URL 中 ? 后面的所有查询参数
+//其实是 route.query.q发生变化,route.query获取当前页面 URL 中 ? 后面的所有查询参数
 watch(()=>route.query.q,newQ=>{
   // 保证searchQuery是个字符串，防止newQ为null或undefined
   searchQuery.value= newQ || ''

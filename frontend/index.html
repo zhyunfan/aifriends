@@ -5,9 +5,20 @@
     <link rel="icon" href="/favicon.ico">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Vite App</title>
+      <!-- Live2D 配置（必须在 autoload.js 之前） -->
+    <script>
+      window.live2d_settings = {
+        cdnPath: "/live2d-widget-master/",      // 模型文件夹路径
+        modelId: 0,
+        modelTexturesId: 0,
+        drag: true
+      };
+    </script>
   </head>
   <body>
     <div id="app"></div>
     <script type="module" src="/src/main.js"></script>
+<!--    <script src="https://fastly.jsdelivr.net/npm/live2d-widgets@1.0.1/dist/autoload.js"></script>-->
+    <script src="/live2d-widget-master/dist/autoload.js"></script>
   </body>
 </html>
