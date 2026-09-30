@@ -6,10 +6,12 @@
     <link rel="icon" href="{% static 'frontend/favicon.ico' %}">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Vite App</title>
-    <script type="module" crossorigin src="{% static 'frontend/assets/index-CiMoOvtl.js' %}"></script>
+    <script type="module" crossorigin src="{% static 'frontend/assets/index-CFyy_aVE.js' %}"></script>
     <link rel="stylesheet" crossorigin href="{% static 'frontend/assets/index-BW22q-J4.css' %}">
   </head>
   <body>
     <div id="app"></div>
+    <!-- 因为vue和live2d冲突即两个是独立的，所以需要在vue加载后加载live2d -->
+    <script src="/static/frontend/live2d-widget-master/dist/autoload.js"></script>
   </body>
 </html>
